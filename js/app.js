@@ -1,126 +1,123 @@
-// VARIABLES
+// :::::::::::::::::::::::::: VARIABLES ::::::::::::::::::::::::::
 const btnSend = document.querySelector('#enviar');
 const btnReset = document.querySelector('#resetBtn');
-const form = document.querySelector('#enviar-mail');
-// variables para los campos del formulario
-const email = document.querySelector('#email');
-const subject = document.querySelector('#asunto');
-const messagge = document.querySelector('#mensaje');
-// variable auxiliar para los errores de los campos del formulario
-const errorMessage = document.createElement('p');
-const expresionRegular = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+const emailForm = document.querySelector('#emailForm');
 
+// variables for btnSendEmail fields
+const inputEmail = document.querySelector('#email');
+const inputSubject = document.querySelector('#asunto');
+const inputMessage = document.querySelector('#mensaje');
+
+
+// auxiliary variables for the btnSendEmail field errors
+const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
 
 function eventListeners() {
-     //cuando la app inicia o arranca
-     document.addEventListener('DOMContentLoaded', initApp);
-     //campos del formulario
-     email.addEventListener('blur', validarFormulario);
-     subject.addEventListener('blur', validarFormulario);
-     messagge.addEventListener('blur', validarFormulario);
-     //limpia el formulario
-     btnReset.addEventListener('click', cleanForm);
-     // envia email
-     form.addEventListener('submit', sendEmail);
+	const email ={
+		email: '',
+		subject: '',
+		message: ''
+	};
+	//cuando la app inicia o arranca
+	document.addEventListener('DOMContentLoaded', initApp);
+	//btnSendEmail fields
+	inputEmail.addEventListener('blur', validateForm);
+	inputSubject.addEventListener('blur', validateForm);
+	inputMessage.addEventListener('blur', validateForm);
+	//clean the btnSendEmail
+	// btnReset.addEventListener('click', cleanForm);
+	// send inputEmail
+	// btnSendEmail.addEventListener('submit', sendEmail);
 }
+
 eventListeners();
 
-// FUNCIONES
+// :::::::::::::::::::::::::: FUNCTIONS ::::::::::::::::::::::::::
 function initApp() {
-     btnSend.disable = true;
-     btnSend.classList.add('cursor-not-allowed', 'opacity-50');
+	btnSend.disable = true;
+	btnSend.classList.add('cursor-not-allowed', 'opacity-50');
 }
 
-function validarFormulario(event) {
+function validateForm(event) {
 
-     validateEmptyFields(event);
+	console.log('email', email);
+	const field = event.target;
+	console.log('field', field);
+	const hasValue = field.value.trim().length > 0;
+	/*field.classList.toggle('border-red-500', !hasValue);
+	field.classList.toggle('border-green-500', hasValue);*/
 
-     if (event.target.type === 'email') {
-          validateEmailFields(event);
-     }
-
-     if (expresionRegular.test(email.value) && subject.value !== '' && messagge.value !== '') {
-          activeSendBotton();
-     }
-
+	if (!hasValue) {
+		const messageError = `${field.id} field is required`;
+		showAlert(messageError, field.parentElement);
+		return;
+	}
+	if ( field.id === 'email' && !validateEmail(field)) {
+		const messageError = `email ${field.value} is not valid`;
+		showAlert(messageError, field.parentElement);
+		return;
+	}
+	cleanAlert(field.parentElement);
+	email[ field.name ] = field.value.trim().toLocaleLowerCase();
+	console.log('email', email);
 }
 
-function validateEmptyFields(event) {
-     if (event.target.value.length > 0) {
-          // elimina los errores
-          hideErrorMessage();
-          event.target.classList.remove('border', 'border-red-500');
-          event.target.classList.add('border', 'border-green-500');
-     }
-     else {
-          event.target.classList.remove('border', 'border-green-500');
-          event.target.classList.add('border', 'border-red-500');
-          createErrorMessage('¡¡¡ All fields are required !!!');
-     }
+function validateEmail(field) {
+	const isFormValid =  emailRegex.test(field.value.trim());
+	console.log('isFormValid', isFormValid);
+	return isFormValid;
 }
 
-function validateEmailFields(event) {
-     if (expresionRegular.test(event.target.value)) {
-          // elimina los errores
-          hideErrorMessage();
-          event.target.classList.remove('border', 'border-red-500');
-          event.target.classList.add('border', 'border-green-500');
-     } else {
-          event.target.classList.remove('border', 'border-green-500');
-          event.target.classList.add('border', 'border-red-500');
-          createErrorMessage('¡¡¡ Email is not valid !!!');
-     }
+function showAlert(text, reference) {
+	cleanAlert(reference);
+	const error = createErrorElement(text);
+	reference.appendChild(error);
 }
 
-function createErrorMessage(text) {
-     errorMessage.textContent = text;
-     errorMessage.classList.add('border', 'border-red-500', 'background-red-100', 'text-red-500', 'p-3', 'mt-5', 'error');
-     showErrorMessage();
+function createErrorElement(message) {
+	const error = document.createElement('p');
+	error.textContent = message;
+	error.classList.add('bg-red-600', 'text-white', 'p-2', 'text-center');
+	return error;
 }
 
-function showErrorMessage() {
-     const errorsClass = document.querySelectorAll('.error');
-     if (errorsClass.length === 0) {
-          form.insertBefore(errorMessage, document.querySelector('.mb-10'));
-     }
+function cleanAlert(reference) {
+	const alert = reference.querySelector('.bg-red-600');
+	if (alert) {
+		alert.remove();
+	}
 }
 
-function hideErrorMessage() {
-     const error = document.querySelector('p.error');
-     if (error) {
-          error.remove();
-     }
-}
 
-function activeSendBotton() {
-     btnSend.disable = false;
-     btnSend.classList.remove('cursor-not-allowed', 'opacity-50');
+function activeSendButton() {
+	btnSend.disable = false;
+	btnSend.classList.remove('cursor-not-allowed', 'opacity-50');
 }
 
 function sendEmail(event) {
-     event.preventDefault();
-     // muestra el spinner
-     const spinner = document.querySelector('#spinner');
-     spinner.style.display = 'flex';
-     // oculta el spinner
-     setTimeout(() => {
-          spinner.style.display = 'none';
-          // crea parrafo diciendo que fue enviado exitosamente el mensaje 
-          const paragraph = document.createElement('p');
-          paragraph.textContent = 'The email was sent successfully';
-          paragraph.classList.add('text-center', 'my-10', 'p-2', 'bg-green-500', 'text-white', 'font-bold', 'uppercase');
-          // inserta el parrafo antes del spinner
-          form.insertBefore(paragraph, spinner);
-          setTimeout(() => {
-               // elimina parrafo diciendo que fue enviado exitosamente el mensaje
-               paragraph.remove();
-               cleanForm();
-          }, 5000);
-     }, 3000);
+	event.preventDefault();
+	// muestra el spinner
+	const spinner = document.querySelector('#spinner');
+	spinner.style.display = 'flex';
+	// oculta el spinner
+	setTimeout(() => {
+		spinner.style.display = 'none';
+		// crea parrafo diciendo que fue enviado exitosamente el mensaje
+		const paragraph = document.createElement('p');
+		paragraph.textContent = 'The email was sent successfully';
+		paragraph.classList.add('text-center', 'my-10', 'p-2', 'bg-green-500', 'text-white', 'font-bold', 'uppercase');
+		// inserta el parrafo antes del spinner
+		form.insertBefore(paragraph, spinner);
+		setTimeout(() => {
+			// elimina parrafo diciendo que fue enviado exitosamente el mensaje
+			paragraph.remove();
+			cleanForm();
+		}, 5000);
+	}, 3000);
 }
 
 function cleanForm() {
-     form.reset();
-     initApp();
+	form.reset();
+	initApp();
 }
