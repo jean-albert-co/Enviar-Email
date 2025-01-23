@@ -1,65 +1,68 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Raleway:100,300" rel="stylesheet">
-    <link type="text/css" rel="stylesheet" href="css/tailwind.min.css"  media="screen,projection"/>
-    <link rel="stylesheet" href="css/custom.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Enviar Email</title>
-  </head>
-  <body>
+    <link href="css/tailwind.min.css" media="screen,projection" rel="stylesheet" type="text/css"/>
+    <link href="css/custom.css" rel="stylesheet">
+    <link href="css/spinner.css" rel="stylesheet">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Send Email</title>
+</head>
+<body>
 
-    <div class="container mx-auto mt-20 bg-white">     
-        <header id="header" class="bg-pink-800 p-3 font-bold">
-            Enviar Nuevo Mail
-        </header>
+<div class="container mx-auto mt-20 bg-white">
+    <header class="bg-pink-800 p-3 font-bold" id="header">
+        Send a New Mail
+    </header>
 
 
-        <form id="emailForm" class="py-10 px-5 max-w-lg mx-auto">
-            <div class="mb-10">
-                <label for="email">Para:</label>
-                <input class="bg-gray-100 border shadow p-3 w-full"  id="email" type="email" name="email">
-            </div>
-            <div class="mb-10">
-                <label for="asunto">Asunto</label>
-                <input class="bg-gray-100 border shadow p-3 w-full"  id="asunto" type="text" name="subject">
-            </div>
-            <div class="mb-10"> 
-                <label for="mensaje">Mensaje</label>
-                <textarea class="bg-gray-100 border shadow p-3 w-full" id="mensaje" name="message"></textarea>
-            </div>
+    <form class="py-10 px-5 max-w-lg mx-auto" id="emailForm">
+        <div class="mb-10">
+            <label for="email">To:</label>
+            <input class="bg-gray-100 border shadow p-3 w-full" id="email" name="email" type="email">
+        </div>
+        <div class="mb-10">
+            <label for="asunto">Subject</label>
+            <input class="bg-gray-100 border shadow p-3 w-full" id="asunto" name="subject" type="text">
+        </div>
+        <div class="mb-10">
+            <label for="mensaje">Message</label>
+            <textarea class="bg-gray-100 border shadow p-3 w-full" id="mensaje" name="message"></textarea>
+        </div>
 
-            <div  id="spinner">
-                <div class="sk-chase">
-                    <div class="sk-chase-dot"></div>
-                    <div class="sk-chase-dot"></div>
-                    <div class="sk-chase-dot"></div>
-                    <div class="sk-chase-dot"></div>
-                    <div class="sk-chase-dot"></div>
-                    <div class="sk-chase-dot"></div>
-                </div>
-            </div>
-            
-            <div class="flex justify-between">
-                    <button 
-                        id="enviar" class="w-full bg-blue-600 px-2 py-5 text-white items-center cursor-not-allowed opacity-50 mr-5 uppercase font-bold items-center flex justify-center" 
-                        type="submit" 
-                    >Enviar
-                        <i class="material-icons right text-white ml-3">send</i>
-                    </button>
 
-                    <button 
-                        id="resetBtn" 
-                        class="w-full bg-green-600 px-2 py-5 text-white items-center uppercase font-bold items-center flex justify-center" 
-                        type="submit"
-                    >Resetear Form
-                            <i class="material-icons right ml-3">delete</i>
-                    </button>
-            </div>
-        </form> 
+        <div class="flex justify-between">
+            <button
+                    class="w-full bg-blue-600 px-2 py-5 text-white items-center cursor-not-allowed opacity-50 mr-5 uppercase font-bold items-center flex justify-center"
+                    disabled
+                    id="enviar"
+                    type="submit"
+            >Send
+                <i class="material-icons right text-white ml-3">send</i>
+            </button>
+
+            <button
+                    class="w-full bg-green-600 px-2 py-5 text-white items-center uppercase font-bold items-center flex justify-center"
+                    id="resetBtn"
+                    type="reset"
+            >Reset Form
+                <i class="material-icons right ml-3">delete</i>
+            </button>
+        </div>
+    </form>
+    <div id="spinner" class="hidden justify-center m-10">
+        <div class="sk-chase">
+            <div class="sk-chase-dot"></div>
+            <div class="sk-chase-dot"></div>
+            <div class="sk-chase-dot"></div>
+            <div class="sk-chase-dot"></div>
+            <div class="sk-chase-dot"></div>
+            <div class="sk-chase-dot"></div>
+        </div>
     </div>
+</div>
 
-    <script src="js/app.js"></script>
-  </body>
+<script src="js/app.js"></script>
+</body>
 </html>
