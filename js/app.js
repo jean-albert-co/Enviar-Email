@@ -1,126 +1,168 @@
-// VARIABLES
+/**
+ * Variables
+ */
+const emailForm = document.querySelector('#emailForm');
 const btnSend = document.querySelector('#enviar');
+const btnSubmit = document.querySelector('#emailForm button[type="submit"]');
 const btnReset = document.querySelector('#resetBtn');
-const form = document.querySelector('#enviar-mail');
-// variables para los campos del formulario
-const email = document.querySelector('#email');
-const subject = document.querySelector('#asunto');
-const messagge = document.querySelector('#mensaje');
-// variable auxiliar para los errores de los campos del formulario
-const errorMessage = document.createElement('p');
-const expresionRegular = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+const inputEmail = document.querySelector('#email');
+const inputSubject = document.querySelector('#asunto');
+const inputMessage = document.querySelector('#mensaje');
+const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+const spinner = document.querySelector('#spinner');
 
+const email = { email: '', subject: '', message: '' };
 
-
+/**
+ * Adds event listeners to the form elements.
+ */
 function eventListeners() {
-     //cuando la app inicia o arranca
-     document.addEventListener('DOMContentLoaded', initApp);
-     //campos del formulario
-     email.addEventListener('blur', validarFormulario);
-     subject.addEventListener('blur', validarFormulario);
-     messagge.addEventListener('blur', validarFormulario);
-     //limpia el formulario
-     btnReset.addEventListener('click', cleanForm);
-     // envia email
-     form.addEventListener('submit', sendEmail);
+    // When the app starts
+    document.addEventListener('DOMContentLoaded', initApp);
+    // Input fields
+    inputEmail.addEventListener('input', validateForm);
+    inputSubject.addEventListener('input', validateForm);
+    inputMessage.addEventListener('input', validateForm);
+    // Reset button
+    btnReset.addEventListener('click', resetForm);
+    // Form submission
+    emailForm.addEventListener('submit', handleEmailSubmission);
 }
+
 eventListeners();
 
-// FUNCIONES
+/**
+ * Initializes the app by disabling the send button.
+ */
 function initApp() {
-     btnSend.disable = true;
-     btnSend.classList.add('cursor-not-allowed', 'opacity-50');
+    disableSendButton();
 }
 
-function validarFormulario(event) {
+/**
+ * Validates the form fields.
+ * @param {Event} event - The input event.
+ */
+function validateForm(event) {
+    const field = event.target;
+    const hasValue = field.value.trim().length > 0;
 
-     validateEmptyFields(event);
-
-     if (event.target.type === 'email') {
-          validateEmailFields(event);
-     }
-
-     if (expresionRegular.test(email.value) && subject.value !== '' && messagge.value !== '') {
-          activeSendBotton();
-     }
-
+    if (!hasValue) {
+        showAlert(`${field.id} field is required`, field.parentElement);
+        email[field.name] = '';
+        updateSendButtonState();
+        return;
+    }
+    if (field.id === 'email' && !isValidEmail(field)) {
+        showAlert(`Email ${field.value} is not valid`, field.parentElement);
+        email[field.name] = '';
+        updateSendButtonState();
+        return;
+    }
+    cleanAlert(field.parentElement);
+    email[field.name] = field.value.trim().toLocaleLowerCase();
+    updateSendButtonState();
 }
 
-function validateEmptyFields(event) {
-     if (event.target.value.length > 0) {
-          // elimina los errores
-          hideErrorMessage();
-          event.target.classList.remove('border', 'border-red-500');
-          event.target.classList.add('border', 'border-green-500');
-     }
-     else {
-          event.target.classList.remove('border', 'border-green-500');
-          event.target.classList.add('border', 'border-red-500');
-          createErrorMessage('¡¡¡ All fields are required !!!');
-     }
+/**
+ * Checks if the email is valid.
+ * @param {HTMLElement} field - The email input field.
+ * @returns {boolean} - True if the email is valid, false otherwise.
+ */
+function isValidEmail(field) {
+    return emailRegex.test(field.value.trim());
 }
 
-function validateEmailFields(event) {
-     if (expresionRegular.test(event.target.value)) {
-          // elimina los errores
-          hideErrorMessage();
-          event.target.classList.remove('border', 'border-red-500');
-          event.target.classList.add('border', 'border-green-500');
-     } else {
-          event.target.classList.remove('border', 'border-green-500');
-          event.target.classList.add('border', 'border-red-500');
-          createErrorMessage('¡¡¡ Email is not valid !!!');
-     }
+/**
+ * Displays an alert message.
+ * @param {string} message - The alert message.
+ * @param {HTMLElement} reference - The reference element to append the alert to.
+ */
+function showAlert(message, reference) {
+    cleanAlert(reference);
+    const error = createErrorElement(message);
+    reference.appendChild(error);
 }
 
-function createErrorMessage(text) {
-     errorMessage.textContent = text;
-     errorMessage.classList.add('border', 'border-red-500', 'background-red-100', 'text-red-500', 'p-3', 'mt-5', 'error');
-     showErrorMessage();
+/**
+ * Creates an error element.
+ * @param {string} message - The error message.
+ * @returns {HTMLElement} - The error element.
+ */
+function createErrorElement(message) {
+    const error = document.createElement('p');
+    error.textContent = message;
+    error.classList.add('bg-red-600', 'text-white', 'p-2', 'text-center');
+    return error;
 }
 
-function showErrorMessage() {
-     const errorsClass = document.querySelectorAll('.error');
-     if (errorsClass.length === 0) {
-          form.insertBefore(errorMessage, document.querySelector('.mb-10'));
-     }
+/**
+ * Cleans the alert message.
+ * @param {HTMLElement} reference - The reference element to clean the alert from.
+ */
+function cleanAlert(reference) {
+    const alert = reference.querySelector('.bg-red-600');
+    if (alert) alert.remove();
 }
 
-function hideErrorMessage() {
-     const error = document.querySelector('p.error');
-     if (error) {
-          error.remove();
-     }
+/**
+ * Disables the send button.
+ */
+function disableSendButton() {
+    btnSend.disabled = true;
+    btnSend.classList.add('cursor-not-allowed', 'opacity-50');
 }
 
-function activeSendBotton() {
-     btnSend.disable = false;
-     btnSend.classList.remove('cursor-not-allowed', 'opacity-50');
+/**
+ * Handles the email submission.
+ * @param {Event} event - The submit event.
+ */
+function handleEmailSubmission(event) {
+    event.preventDefault();
+    spinner.style.display = 'flex';
+    setTimeout(() => {
+        spinner.style.display = 'none';
+        showSuccessMessage();
+        setTimeout(() => {
+            clearSuccessMessage();
+            resetForm();
+        }, 3500);
+    }, 3000);
 }
 
-function sendEmail(event) {
-     event.preventDefault();
-     // muestra el spinner
-     const spinner = document.querySelector('#spinner');
-     spinner.style.display = 'flex';
-     // oculta el spinner
-     setTimeout(() => {
-          spinner.style.display = 'none';
-          // crea parrafo diciendo que fue enviado exitosamente el mensaje 
-          const paragraph = document.createElement('p');
-          paragraph.textContent = 'The email was sent successfully';
-          paragraph.classList.add('text-center', 'my-10', 'p-2', 'bg-green-500', 'text-white', 'font-bold', 'uppercase');
-          // inserta el parrafo antes del spinner
-          form.insertBefore(paragraph, spinner);
-          setTimeout(() => {
-               // elimina parrafo diciendo que fue enviado exitosamente el mensaje
-               paragraph.remove();
-               cleanForm();
-          }, 5000);
-     }, 3000);
+/**
+ * Displays a success message.
+ */
+function showSuccessMessage() {
+    const paragraph = document.createElement('p');
+    paragraph.textContent = 'The email was sent successfully';
+    paragraph.classList.add('text-center', 'my-10', 'p-2', 'bg-green-500', 'text-white', 'font-bold', 'uppercase');
+    emailForm.insertBefore(paragraph, document.querySelector('#spinner'));
 }
 
-function cleanForm() {
-     form.reset();
-     initApp();
+/**
+ * Clears the success message.
+ */
+function clearSuccessMessage() {
+    const paragraph = emailForm.querySelector('.bg-green-500');
+    if (paragraph) paragraph.remove();
+}
+
+/**
+ * Updates the state of the send button.
+ */
+function updateSendButtonState() {
+    const isFormEmpty = Object.values(email).includes('');
+    btnSubmit.classList.toggle('opacity-50', isFormEmpty);
+    btnSubmit.disabled = isFormEmpty;
+}
+
+/**
+ * Resets the form.
+ * @param {Event} [event] - The reset event.
+ */
+function resetForm(event) {
+    if (event) event.preventDefault();
+    Object.keys(email).forEach(key => email[key] = '');
+    emailForm.reset();
+    updateSendButtonState();
 }
